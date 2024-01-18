@@ -1,0 +1,45 @@
+# Reference:
+# https://pre-commit.com
+# https://github.com/antonbabenko/pre-commit-terraform
+# https://medium.com/@seifeddinerajhi/a-guide-to-using-pre-commit-hooks-for-terraform-save-time-and-improve-code-quality-ba658ce41a77
+
+repos:
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: check-added-large-files
+        args:
+        - --maxkb=1000
+      - id: check-json
+      - id: check-shebang-scripts-are-executable
+      - id: check-toml
+      - id: check-yaml
+        args:
+        - '--allow-multiple-documents'
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+
+  - repo: https://github.com/antonbabenko/pre-commit-terraform
+    rev: v1.83.6
+    hooks:
+      - id: terraform_fmt
+        files: \.tf$
+      - id: terraform_docs
+      - id: terraform_tflint
+        # see https://github.com/terraform-linters/tflint
+        # see https://github.com/terraform-linters/tflint-ruleset-terraform/blob/main/docs/rules/README.md
+        # add comments of the following format to ignore tflint warnings: "# tflint-ignore: aws_instance_invalid_type"
+        args:
+          - --args=--no-module
+          - --args=--recursive
+          - --args=--config=__GIT_WORKING_DIR__/.tflint.hcl
+      - id: terraform_tfsec
+        # add comments of the following format to ignore tfsec warnings: "# tfsec:ignore:aws-elb-http-not-used"
+        # see https://aquasecurity.github.io/tfsec/v1.28.4/checks/aws/
+        # see https://aquasecurity.github.io/tfsec/v1.28.4/guides/usage/
+
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.18.1
+    hooks:
+      - id: gitleaks
